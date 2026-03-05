@@ -1,23 +1,41 @@
 import streamlit as st
 from utils.io import load_data
-from charts.charts import team_consistency_chart
+from charts.charts import (
+    attacking_consistency_chart,
+    home_advantage_chart
+)
 
 st.title("Team Consistency")
 
-df = load_data()
-
-chart = team_consistency_chart(df)
-
-st.altair_chart(chart, use_container_width=True)
-
-import streamlit as st
-from utils.io import load_data
-from charts.charts import home_advantage_dashboard
-
-st.title("Home Advantage Across Teams")
+st.write("""
+We analyze how consistent teams are offensively across the season
+using rolling averages of attacking metrics.
+""")
 
 df = load_data()
 
-chart = home_advantage_dashboard(df)
+# -----------------------
+# Chart 1
+# -----------------------
 
-st.altair_chart(chart, use_container_width=True)
+st.header("Attacking Consistency")
+
+chart1 = attacking_consistency_chart(df)
+
+st.altair_chart(chart1, use_container_width=True)
+
+
+# -----------------------
+# Chart 2
+# -----------------------
+
+st.header("Home Advantage")
+
+season = st.radio(
+    "Select Season",
+    ["2023-24", "2024-25"]
+)
+
+chart2 = home_advantage_chart(df, season)
+
+st.altair_chart(chart2, use_container_width=True)
