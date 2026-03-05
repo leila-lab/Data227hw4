@@ -98,11 +98,6 @@ from charts.charts import home_advantage_dashboard
 
 st.title("Home Advantage")
 
-st.write("""
-This visualization compares the advantage teams gain when playing at home
-versus away. Teams with large positive values benefit strongly from home matches.
-""")
-
 df = load_data()
 
 season = st.radio(
