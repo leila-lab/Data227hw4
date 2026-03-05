@@ -20,19 +20,26 @@ chart = foul_distribution_dashboard(df)
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-Together, these visualizations highlight meaningful differences in how referees manage
-disciplinary actions during matches. The top chart shows that referees vary noticeably
-in the average number of fouls, yellow cards, and red cards they issue per match across
-seasons. Some referees consistently produce higher disciplinary totals, suggesting a
-stricter officiating style, while others appear more lenient.
+The visualizations also reveal some of the significant differences that exist 
+in the refereeing of matches in the EPL league. The first visualization indicates
+that referees in the EPL league have different tendencies when it comes 
+to the average number of fouls, yellow cards, and red cards in the matches
+that they officiate in different seasons of the league. The second visualization
+indicates that referees also have different impacts on the teams that they 
+officiate in the EPL league matches. The visualization indicates that when 
+a referee is chosen to officiate in the matches of the EPL league, it 
+reveals the teams that receive the most fouls and cards in the matches that 
+the referee officiates in the EPL league.
 
-The bottom chart reveals how these refereeing tendencies translate to the team level.
-When a specific referee is selected, we can see which teams tend to accumulate the most
-cards or fouls in matches they officiate. While some variation may reflect team playing
-styles, the patterns also suggest that referee decisions can meaningfully influence the
-disciplinary intensity of matches.
-
-Overall, these findings illustrate that disciplinary outcomes in football are shaped not
-only by team behavior but also by the referees overseeing the match, highlighting an
-important contextual factor in understanding match dynamics.
+The results of the analysis indicate that the disciplinary actions in
+the matches of the EPL league are not solely determined by the teams that 
+participate in the matches of the EPL league. The analysis also indicates
+that the refereeing style of the referees in the EPL league has a 
+significant impact on the matches that the referees officiate in the EPL league.
+For example, the refereeing style of the referee S. Allison in the 2024-25 
+season of the EPL league was significantly different from the refereeing 
+style of the same referee in the 2023-24 season of the EPL league. The 
+refereeing style of the same referee in the 2024-25 season of the EPL 
+league indicates that the referee issued many more fouls and yellow cards
+in the 2024-25 season of the EPL league than in the 2023-24 season of the EPL league.
 """)
