@@ -5,113 +5,119 @@ import numpy as np
 alt.data_transformers.disable_max_rows()
 
 
-# --------------------------------------------------
-# Chart 1: League position bump chart
-# --------------------------------------------------
-
-def attacking_consistency_chart(df):
-
-    import pandas as pd
-    import altair as alt
+def league_position_chart(df):
 
     # -----------------------
-    # Build long match-level dataset
+    # Compute wins
     # -----------------------
 
-    home = df[[
-        "Season","Date","HomeTeam","FTHG","HS","HST","HC"
-    ]].copy()
+    df["HomeWin"] = (df["FTHG"] > df["FTAG"]).astype(int)
+    df["AwayWin"] = (df["FTAG"] > df["FTHG"]).astype(int)
 
-    home.columns = [
-        "Season","Date","Team","Goals","Shots","ShotsOnTarget","Corners"
-    ]
+    home = df.groupby(["Season","HomeTeam"])["HomeWin"].sum().reset_index()
+    home.columns = ["Season","Team","HomeWins"]
 
-    away = df[[
-        "Season","Date","AwayTeam","FTAG","AS","AST","AC"
-    ]].copy()
+    away = df.groupby(["Season","AwayTeam"])["AwayWin"].sum().reset_index()
+    away.columns = ["Season","Team","AwayWins"]
 
-    away.columns = [
-        "Season","Date","Team","Goals","Shots","ShotsOnTarget","Corners"
-    ]
+    team_summary = home.merge(away, on=["Season","Team"])
 
-    long_df = pd.concat([home, away])
-
-    # -----------------------
-    # IMPORTANT: sort properly
-    # -----------------------
-
-    long_df = long_df.sort_values(["Season","Team","Date"])
-
-    long_df["Matchweek"] = (
-        long_df.groupby(["Season","Team"]).cumcount() + 1
+    team_summary["TotalWins"] = (
+        team_summary["HomeWins"] + team_summary["AwayWins"]
     )
 
     # -----------------------
-    # Reshape for metric toggle
+    # Compute ranking
     # -----------------------
 
-    metric_df = long_df.melt(
-        id_vars=["Season","Team","Date","Matchweek"],
-        value_vars=["Goals","Shots","ShotsOnTarget","Corners"],
-        var_name="Metric",
-        value_name="Value"
+    team_summary["Position"] = (
+        team_summary
+        .groupby("Season")["TotalWins"]
+        .rank(method="first", ascending=False)
     )
 
     # -----------------------
-    # Rolling average
+    # Compute rank change
     # -----------------------
 
-    metric_df["RollingValue"] = (
-        metric_df
-        .groupby(["Season","Team","Metric"])["Value"]
-        .transform(lambda x: x.rolling(5, min_periods=1).mean())
+    rank_change = (
+        team_summary
+        .pivot(index="Team", columns="Season", values="Position")
+        .reset_index()
+    )
+
+    rank_change["Change"] = (
+        rank_change["2023-24"] - rank_change["2024-25"]
+    )
+
+    team_summary = team_summary.merge(
+        rank_change[["Team","Change"]],
+        on="Team"
     )
 
     # -----------------------
-    # Selections
+    # Hover highlight
     # -----------------------
 
     team_select = alt.selection_point(
         fields=["Team"],
-        bind=alt.binding_select(options=sorted(metric_df["Team"].unique()))
-    )
-
-    season_select = alt.selection_point(
-        fields=["Season"],
-        bind=alt.binding_radio(options=["2023-24","2024-25"])
-    )
-
-    metric_select = alt.selection_point(
-        fields=["Metric"],
-        bind=alt.binding_radio(
-            options=["Goals","Shots","ShotsOnTarget","Corners"]
-        )
+        on="mouseover",
+        clear="mouseout"
     )
 
     # -----------------------
-    # Chart
+    # Base bump chart
     # -----------------------
 
-    chart = (
-        alt.Chart(metric_df)
-        .mark_line(size=3)
+    base = (
+        alt.Chart(team_summary)
+        .mark_line(point=True)
         .encode(
-            x=alt.X("Matchweek:Q", title="Matchweek"),
-            y=alt.Y("RollingValue:Q", title="5-Match Rolling Average"),
-            tooltip=["Team","Season","Matchweek","Metric","RollingValue"]
+            x=alt.X(
+                "Season:N",
+                sort=["2023-24","2024-25"],
+                axis=alt.Axis(title="Season")
+            ),
+            y=alt.Y(
+                "Position:Q",
+                scale=alt.Scale(reverse=True),
+                axis=alt.Axis(title="League Position (Based on Wins)")
+            ),
+            detail="Team:N",
+            color=alt.Color("Team:N", legend=None),
+            strokeWidth=alt.condition(team_select, alt.value(4), alt.value(1)),
+            opacity=alt.condition(team_select, alt.value(1), alt.value(0.25)),
+            tooltip=["Team","Season","TotalWins","Position","Change"]
         )
-        .transform_filter(team_select)
-        .transform_filter(season_select)
-        .transform_filter(metric_select)
-        .add_params(team_select, season_select, metric_select)
-        .properties(
-            width=750,
-            height=450,
-            title="Attacking Consistency Across Matchweeks"
+        .add_params(team_select)
+    )
+
+    # -----------------------
+    # Labels for final season
+    # -----------------------
+
+    endpoints = team_summary[team_summary["Season"] == "2024-25"]
+
+    labels = (
+        alt.Chart(endpoints)
+        .mark_text(align="left", dx=8)
+        .encode(
+            x="Season:N",
+            y=alt.Y("Position:Q", scale=alt.Scale(reverse=True)),
+            text="Team:N",
+            color=alt.Color("Team:N", legend=None)
         )
     )
 
-    return chart
+    bump_chart = (
+        base + labels
+    ).properties(
+        width=650,
+        height=650,
+        title="League Position Movement Between Seasons (Based on Total Wins)"
+    )
+
+    return bump_chart
 # --------------------------------------------------
 # Chart 2: Attacking consistency
 # --------------------------------------------------

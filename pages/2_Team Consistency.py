@@ -118,20 +118,13 @@ chart = (
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-This visualization examines how consistent teams are offensively throughout the season.
-Instead of looking at single match outcomes, we track **rolling averages across five matches**
-to smooth out short-term fluctuations and highlight broader trends in performance.
+The chart highlights how attacking performance evolves throughout the season rather than
+remaining constant. Some teams demonstrate sustained attacking pressure across many matchweeks,
+while others experience significant swings in their offensive output.
 
-The chart allows users to select a team, season, and attacking metric
-(goals, shots, shots on target, or corners). The rolling average helps reveal whether a team’s
-attacking output remains stable across the season or fluctuates significantly between matchweeks.
-
-Consistent teams typically maintain relatively steady attacking output across matches,
-while less consistent teams show large swings in performance. For example, a team may experience
-periods where their attacking metrics increase sharply, followed by stretches where their
-output drops.
-
-By examining these rolling averages, we can better understand not just how well a team performs,
-but **how stable their performance is over time**, which is often an important factor in
-determining overall success during a league season.
+Teams with smoother and more stable rolling averages tend to exhibit greater tactical
+consistency, which may translate into more predictable match outcomes. In contrast, teams
+with highly volatile attacking trends may struggle to maintain momentum across the season.
+This suggests that sustained attacking performance—not just occasional strong matches—
+plays an important role in overall team success.
 """)
