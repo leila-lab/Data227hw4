@@ -118,13 +118,22 @@ chart = (
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-The chart highlights how attacking performance evolves throughout the season rather than
-remaining constant. Some teams demonstrate sustained attacking pressure across many matchweeks,
-while others experience significant swings in their offensive output.
+The chart indicates that rather than maintaining stability in attacking output over the course
+of the season, it tends to vary over time with periods of relative high output followed by
+periods of lower output. In the case illustrated above, it seems like the team faces a major
+dip in attacking output in the middle of the season before resuming at a much higher level
+in the later stages of the season.
+""")
 
-Teams with smoother and more stable rolling averages tend to exhibit greater tactical
-consistency, which may translate into more predictable match outcomes. In contrast, teams
-with highly volatile attacking trends may struggle to maintain momentum across the season.
-This suggests that sustained attacking performance—not just occasional strong matches—
-plays an important role in overall team success.
+st.write("""
+The above trends indicate how teams tend to have cycles rather than maintaining a constant
+level in attacking output over time. Teams with smoother and steadier trends in rolling
+averages tend to have better tactical consistency in comparison to teams with more volatile
+trends in attacking output.
+""")
+
+st.write("""
+The above visualization indicates how maintaining consistency in attacking output over
+time—rather than focusing solely on peak scoring matches—plays a major role in ensuring
+relative competitiveness over time in a full season of league matches.
 """)

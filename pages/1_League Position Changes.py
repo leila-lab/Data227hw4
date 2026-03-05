@@ -18,22 +18,21 @@ chart = league_position_chart(df)
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-The chart indicates that rather than maintaining stability in attacking output over the course
-of the season, it tends to vary over time with periods of relative high output followed by
-periods of lower output. In the case illustrated above, it seems like the team faces a major
-dip in attacking output in the middle of the season before resuming at a much higher level
-in the later stages of the season.
+Some of the teams experienced significant changes in their positions between
+the two seasons. For example, the position of Liverpool has been enhanced
+to ensure that they take the first position in the 2024-25 season, while
+other teams, such as Manchester City, remain stable at the top of the
+league table. On the other hand, there are teams such as Tottenham Hotspur
+and West Ham United, which show significant changes in their positions, which
+could be attributed to their performance in the following season.
 """)
 
 st.write("""
-The above trends indicate how teams tend to have cycles rather than maintaining a constant
-level in attacking output over time. Teams with smoother and steadier trends in rolling
-averages tend to have better tactical consistency in comparison to teams with more volatile
-trends in attacking output.
-""")
-
-st.write("""
-The above visualization indicates how maintaining consistency in attacking output over
-time—rather than focusing solely on peak scoring matches—plays a major role in ensuring
-relative competitiveness over time in a full season of league matches.
+In conclusion, the visualization shows how the positions of the teams
+change significantly between one season and another. This is attributed
+to the fact that even small differences in the winning games can cause
+significant changes in the final positions of the league, which is
+characteristic of the Premier League. The changes show how dynamic the
+performance of the teams is, where some of them move up while others move
+down depending on their performance during the season.
 """)
