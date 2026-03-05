@@ -7,9 +7,6 @@ alt.data_transformers.disable_max_rows()
 
 def league_position_chart(df):
 
-    # -----------------------
-    # Compute wins
-    # -----------------------
 
     df["HomeWin"] = (df["FTHG"] > df["FTAG"]).astype(int)
     df["AwayWin"] = (df["FTAG"] > df["FTHG"]).astype(int)
@@ -26,9 +23,6 @@ def league_position_chart(df):
         team_summary["HomeWins"] + team_summary["AwayWins"]
     )
 
-    # -----------------------
-    # Compute ranking
-    # -----------------------
 
     team_summary["Position"] = (
         team_summary
@@ -36,9 +30,6 @@ def league_position_chart(df):
         .rank(method="first", ascending=False)
     )
 
-    # -----------------------
-    # Compute rank change
-    # -----------------------
 
     rank_change = (
         team_summary
@@ -55,9 +46,7 @@ def league_position_chart(df):
         on="Team"
     )
 
-    # -----------------------
     # Hover highlight
-    # -----------------------
 
     team_select = alt.selection_point(
         fields=["Team"],
@@ -65,9 +54,7 @@ def league_position_chart(df):
         clear="mouseout"
     )
 
-    # -----------------------
     # Base bump chart
-    # -----------------------
 
     base = (
         alt.Chart(team_summary)
@@ -118,9 +105,8 @@ def league_position_chart(df):
     )
 
     return bump_chart
-# --------------------------------------------------
+
 # Chart 2: Attacking consistency
-# --------------------------------------------------
 
 def attacking_consistency_chart(df):
 
@@ -261,9 +247,7 @@ def foul_distribution_dashboard(df):
 
     team_summary.rename(columns={"HomeTeam": "Team"}, inplace=True)
 
-    # -----------------------
     # Interactions
-    # -----------------------
 
     metric_select = alt.selection_point(
         fields=["Metric"],
@@ -276,9 +260,7 @@ def foul_distribution_dashboard(df):
 
     ref_select = alt.selection_point(fields=["Referee"])
 
-    # -----------------------
     # Sorting referees
-    # -----------------------
 
     sort_df = (
         ref_long[
@@ -290,9 +272,7 @@ def foul_distribution_dashboard(df):
 
     sort_order = sort_df["Referee"].tolist()
 
-    # -----------------------
     # Top chart
-    # -----------------------
 
     lines = (
         alt.Chart(ref_long)
@@ -327,9 +307,7 @@ def foul_distribution_dashboard(df):
 
     ranking_chart = lines + points
 
-    # -----------------------
     # Bottom chart
-    # -----------------------
 
     team_chart = (
         alt.Chart(team_summary)
