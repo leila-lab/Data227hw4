@@ -207,11 +207,6 @@ def attacking_consistency_chart(df):
 
 def foul_distribution_dashboard(df):
 
-    import altair as alt
-    import pandas as pd
-
-    alt.data_transformers.disable_max_rows()
-
     # -----------------------
     # Disciplinary metrics
     # -----------------------
