@@ -201,3 +201,165 @@ def attacking_consistency_chart(df):
         height=450,
         title="Attacking Consistency Across Matchweeks"
     )
+
+
+##chart 3
+
+def foul_distribution_dashboard(df):
+
+    import altair as alt
+    import pandas as pd
+
+    alt.data_transformers.disable_max_rows()
+
+    # -----------------------
+    # Disciplinary metrics
+    # -----------------------
+
+    df = df.copy()
+
+    df["Yellows"] = df["HY"] + df["AY"]
+    df["Reds"] = df["HR"] + df["AR"]
+    df["Fouls"] = df["HF"] + df["AF"]
+
+    # -----------------------
+    # Referee summary
+    # -----------------------
+
+    ref_summary = (
+        df.groupby(["Season", "Referee"])
+        .agg(
+            Yellows=("Yellows", "mean"),
+            Reds=("Reds", "mean"),
+            Fouls=("Fouls", "mean")
+        )
+        .reset_index()
+    )
+
+    ref_long = ref_summary.melt(
+        id_vars=["Season", "Referee"],
+        value_vars=["Yellows", "Reds", "Fouls"],
+        var_name="Metric",
+        value_name="AveragePerMatch"
+    )
+
+    counts = ref_long.groupby(["Referee", "Metric"])["Season"].nunique().reset_index()
+    valid_refs = counts[counts["Season"] == 2][["Referee", "Metric"]]
+    ref_long = ref_long.merge(valid_refs, on=["Referee", "Metric"])
+
+    # -----------------------
+    # Team-level summary
+    # -----------------------
+
+    team_ref = df.melt(
+        id_vars=["Season", "Referee", "HomeTeam"],
+        value_vars=["Yellows", "Reds", "Fouls"],
+        var_name="Metric",
+        value_name="Value"
+    )
+
+    team_summary = (
+        team_ref.groupby(["Season", "Referee", "HomeTeam", "Metric"])
+        .agg(AvgPerMatch=("Value", "mean"))
+        .reset_index()
+    )
+
+    team_summary.rename(columns={"HomeTeam": "Team"}, inplace=True)
+
+    # -----------------------
+    # Interactions
+    # -----------------------
+
+    metric_select = alt.selection_point(
+        fields=["Metric"],
+        bind=alt.binding_radio(
+            options=["Yellows", "Reds", "Fouls"],
+            name="Metric"
+        ),
+        value="Yellows"
+    )
+
+    ref_select = alt.selection_point(fields=["Referee"])
+
+    # -----------------------
+    # Sorting referees
+    # -----------------------
+
+    sort_df = (
+        ref_long[
+            (ref_long["Season"] == "2024-25") &
+            (ref_long["Metric"] == "Yellows")
+        ]
+        .sort_values("AveragePerMatch", ascending=False)
+    )
+
+    sort_order = sort_df["Referee"].tolist()
+
+    # -----------------------
+    # Top chart
+    # -----------------------
+
+    lines = (
+        alt.Chart(ref_long)
+        .mark_line(color="lightgray")
+        .encode(
+            y=alt.Y("Referee:N", sort=sort_order, title="Referee"),
+            x="AveragePerMatch:Q",
+            detail="Referee:N"
+        )
+        .transform_filter(metric_select)
+    )
+
+    points = (
+        alt.Chart(ref_long)
+        .mark_circle(size=90)
+        .encode(
+            y=alt.Y("Referee:N", sort=sort_order),
+            x=alt.X("AveragePerMatch:Q",
+                    title="Average Cards/Fouls per Match"),
+            color=alt.Color("Season:N"),
+            opacity=alt.condition(ref_select, alt.value(1), alt.value(0.3)),
+            tooltip=["Referee", "Season", "AveragePerMatch"]
+        )
+        .transform_filter(metric_select)
+        .add_params(metric_select, ref_select)
+        .properties(
+            width=650,
+            height=700,
+            title="Referee Disciplinary Intensity Across Seasons"
+        )
+    )
+
+    ranking_chart = lines + points
+
+    # -----------------------
+    # Bottom chart
+    # -----------------------
+
+    team_chart = (
+        alt.Chart(team_summary)
+        .mark_bar()
+        .encode(
+            y=alt.Y("Team:N", sort="-x", title="Team"),
+            x=alt.X(
+                "AvgPerMatch:Q",
+                title="Average Cards/Fouls per Match",
+                stack=None
+            ),
+            color=alt.Color("Season:N"),
+            tooltip=["Team", "Season", "AvgPerMatch"]
+        )
+        .transform_filter(metric_select)
+        .transform_filter(ref_select)
+        .properties(
+            width=650,
+            height=350,
+            title="Team-Level Disciplinary Intensity Under Selected Referee"
+        )
+    )
+
+    dashboard = (ranking_chart & team_chart).resolve_scale(
+        x="independent"
+    )
+
+    return dashboard
