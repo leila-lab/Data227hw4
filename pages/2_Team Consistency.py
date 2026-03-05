@@ -7,9 +7,9 @@ st.title("Team Consistency")
 
 df = load_data()
 
-# -----------------------
+# ------------------------
 # Build long dataset
-# -----------------------
+# ------------------------
 
 home = df[[
     "Season","Date","HomeTeam","FTHG","HS","HST","HC"
@@ -35,6 +35,10 @@ long_df["Matchweek"] = (
     long_df.groupby(["Season","Team"]).cumcount() + 1
 )
 
+# ------------------------
+# Reshape for metric toggle
+# ------------------------
+
 metric_df = long_df.melt(
     id_vars=["Season","Team","Date","Matchweek"],
     value_vars=["Goals","Shots","ShotsOnTarget","Corners"],
@@ -48,9 +52,9 @@ metric_df["RollingValue"] = (
     .transform(lambda x: x.rolling(5, min_periods=1).mean())
 )
 
-# -----------------------
-# Streamlit controls
-# -----------------------
+# ------------------------
+# Streamlit filters
+# ------------------------
 
 team = st.selectbox(
     "Select Team",
@@ -73,9 +77,9 @@ filtered = metric_df[
     (metric_df["Metric"] == metric)
 ]
 
-# -----------------------
+# ------------------------
 # Chart
-# -----------------------
+# ------------------------
 
 chart = (
     alt.Chart(filtered)
@@ -91,6 +95,8 @@ chart = (
         title="Attacking Consistency Across Matchweeks"
     )
 )
+
+st.altair_chart(chart, use_container_width=True)
 
 import streamlit as st
 from utils.io import load_data

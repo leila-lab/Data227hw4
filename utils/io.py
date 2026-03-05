@@ -12,4 +12,6 @@ def load_data():
 
     df = pd.concat([s2324, s2425], ignore_index=True)
 
+    df["Date"] = pd.to_datetime(df["Date"])
+
     return df
