@@ -15,12 +15,12 @@ how consistent teams perform, and how disciplinary actions vary across matches.
 st.write("""
 ### Navigate the Story
 
-**League Position Changes**
+**League Position Changes:**
 We examine how team rankings change throughout the season.
 
-**Team Consistency**
+**Team Consistency:**
 We analyze how stable teams perform across matches.
 
-**Foul Distributions**
+**Foul Distributions:**
 We explore disciplinary patterns and foul statistics.
 """)
