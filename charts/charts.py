@@ -204,15 +204,12 @@ def home_advantage_dashboard(df, season):
 
     import altair as alt
     import numpy as np
-    import pandas as pd
 
     alt.data_transformers.disable_max_rows()
 
     # -----------------------
     # Compute points
     # -----------------------
-
-    df = df.copy()
 
     df["HomePoints"] = np.where(
         df["FTHG"] > df["FTAG"], 3,
@@ -225,7 +222,7 @@ def home_advantage_dashboard(df, season):
     )
 
     # -----------------------
-    # Team totals
+    # Team aggregation
     # -----------------------
 
     home = df.groupby(["Season","HomeTeam"])["HomePoints"].sum().reset_index()
@@ -240,8 +237,13 @@ def home_advantage_dashboard(df, season):
         team_perf["HomePoints"] - team_perf["AwayPoints"]
     )
 
-    # Filter season
     team_perf = team_perf[team_perf["Season"] == season]
+
+    # -----------------------
+    # Brush interaction
+    # -----------------------
+
+    brush = alt.selection_interval(encodings=["y"])
 
     # -----------------------
     # Top chart
@@ -261,8 +263,10 @@ def home_advantage_dashboard(df, season):
                 alt.value("steelblue"),
                 alt.value("orange")
             ),
+            opacity=alt.condition(brush, alt.value(1), alt.value(0.3)),
             tooltip=["Team","HomePoints","AwayPoints","HomeAdvantage"]
         )
+        .add_params(brush)
         .properties(width=650, height=350)
     )
 
@@ -284,12 +288,17 @@ def home_advantage_dashboard(df, season):
             x=alt.X("Venue:N", title="Venue"),
             y=alt.Y("Points:Q", title="Total Points"),
             column=alt.Column("Team:N", title="Team"),
-            color="Venue:N",
+            color=alt.Color("Venue:N", legend=None),
             tooltip=["Team","Venue","Points"]
         )
+        .transform_filter(brush)
         .properties(width=120, height=250)
     )
 
-    dashboard = top_chart & bottom_chart
+    # -----------------------
+    # Combine charts
+    # -----------------------
+
+    dashboard = top_chart
 
     return dashboard
