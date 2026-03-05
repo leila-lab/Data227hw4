@@ -5,11 +5,16 @@ from utils.io import load_data
 
 st.title("Team Consistency")
 
+st.write("""
+This visualization examines how consistent teams are across the season by
+tracking rolling averages of key attacking metrics over matchweeks.
+""")
+
 df = load_data()
 
-# ------------------------
-# Build long dataset
-# ------------------------
+# ------------------------------------------------
+# Build long match-level dataset (home + away)
+# ------------------------------------------------
 
 home = df[[
     "Season","Date","HomeTeam","FTHG","HS","HST","HC"
@@ -29,15 +34,19 @@ away.columns = [
 
 long_df = pd.concat([home, away])
 
+# ------------------------------------------------
+# Sort properly so rolling averages work
+# ------------------------------------------------
+
 long_df = long_df.sort_values(["Season","Team","Date"])
 
 long_df["Matchweek"] = (
     long_df.groupby(["Season","Team"]).cumcount() + 1
 )
 
-# ------------------------
-# Reshape for metric toggle
-# ------------------------
+# ------------------------------------------------
+# Reshape dataset for metric toggle
+# ------------------------------------------------
 
 metric_df = long_df.melt(
     id_vars=["Season","Team","Date","Matchweek"],
@@ -46,15 +55,19 @@ metric_df = long_df.melt(
     value_name="Value"
 )
 
+# ------------------------------------------------
+# Compute 5-match rolling averages
+# ------------------------------------------------
+
 metric_df["RollingValue"] = (
     metric_df
     .groupby(["Season","Team","Metric"])["Value"]
     .transform(lambda x: x.rolling(5, min_periods=1).mean())
 )
 
-# ------------------------
-# Streamlit filters
-# ------------------------
+# ------------------------------------------------
+# Streamlit controls
+# ------------------------------------------------
 
 team = st.selectbox(
     "Select Team",
@@ -77,9 +90,9 @@ filtered = metric_df[
     (metric_df["Metric"] == metric)
 ]
 
-# ------------------------
-# Chart
-# ------------------------
+# ------------------------------------------------
+# Build chart
+# ------------------------------------------------
 
 chart = (
     alt.Chart(filtered)
@@ -87,7 +100,13 @@ chart = (
     .encode(
         x=alt.X("Matchweek:Q", title="Matchweek"),
         y=alt.Y("RollingValue:Q", title="5-Match Rolling Average"),
-        tooltip=["Team","Season","Matchweek","Metric","RollingValue"]
+        tooltip=[
+            "Team",
+            "Season",
+            "Matchweek",
+            "Metric",
+            "RollingValue"
+        ]
     )
     .properties(
         width=750,
@@ -96,3 +115,4 @@ chart = (
     )
 )
 
+st.altair_chart(chart, use_container_width=True)
