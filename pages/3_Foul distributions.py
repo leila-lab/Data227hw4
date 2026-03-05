@@ -22,24 +22,24 @@ st.altair_chart(chart, use_container_width=True)
 st.write("""
 The visualizations also reveal some of the significant differences that exist 
 in the refereeing of matches in the EPL league. The first visualization indicates
-that referees in the EPL league have different tendencies when it comes 
+that referees in the league have different tendencies when it comes 
 to the average number of fouls, yellow cards, and red cards in the matches
 that they officiate in different seasons of the league. The second visualization
 indicates that referees also have different impacts on the teams that they 
-officiate in the EPL league matches. The visualization indicates that when 
-a referee is chosen to officiate in the matches of the EPL league, it 
+officiate in the league matches. The visualization indicates that when 
+a referee is chosen to officiate in the matches of the league, it 
 reveals the teams that receive the most fouls and cards in the matches that 
-the referee officiates in the EPL league.
+the referee officiates in the league.
 
 The results of the analysis indicate that the disciplinary actions in
 the matches of the EPL league are not solely determined by the teams that 
-participate in the matches of the EPL league. The analysis also indicates
-that the refereeing style of the referees in the EPL league has a 
+participate in the matches. The analysis also indicates
+that the refereeing style of the referees has a 
 significant impact on the matches that the referees officiate in the EPL league.
 For example, the refereeing style of the referee S. Allison in the 2024-25 
-season of the EPL league was significantly different from the refereeing 
-style of the same referee in the 2023-24 season of the EPL league. The 
-refereeing style of the same referee in the 2024-25 season of the EPL 
-league indicates that the referee issued many more fouls and yellow cards
-in the 2024-25 season of the EPL league than in the 2023-24 season of the EPL league.
+season was significantly different from the refereeing 
+style of the same referee in the 2023-24 season. The 
+refereeing style of the same referee in the 2024-25 season of the 
+league indicates that she issued many more fouls and yellow cards
+in the 2024-25 season than in the 2023-24 season.
 """)
