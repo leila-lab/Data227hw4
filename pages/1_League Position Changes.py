@@ -6,7 +6,7 @@ st.title("League Position Changes")
 
 st.write("""
 This visualization compares league rankings between the 2023-24 and
-2024-25 seasons. Teams are ranked based on total wins in each season.
+2024-25 seasons. Teams are ranked based on how many total wins they gained between seasons.
 
 Hover over a team to highlight its movement between seasons.
 """)
