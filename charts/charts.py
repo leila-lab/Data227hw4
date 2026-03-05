@@ -200,18 +200,30 @@ def attacking_consistency_chart(df):
 # --------------------------------------------------
 # Chart 3: Home advantage
 # --------------------------------------------------
+def home_advantage_dashboard(df, season):
 
-def home_advantage_chart(df):
+    import altair as alt
+    import numpy as np
+
+    alt.data_transformers.disable_max_rows()
+
+    # -----------------------
+    # Compute points
+    # -----------------------
 
     df["HomePoints"] = np.where(
-        df["FTHG"] > df["FTAG"],3,
-        np.where(df["FTHG"] == df["FTAG"],1,0)
+        df["FTHG"] > df["FTAG"], 3,
+        np.where(df["FTHG"] == df["FTAG"], 1, 0)
     )
 
     df["AwayPoints"] = np.where(
-        df["FTAG"] > df["FTHG"],3,
-        np.where(df["FTAG"] == df["FTHG"],1,0)
+        df["FTAG"] > df["FTHG"], 3,
+        np.where(df["FTAG"] == df["FTHG"], 1, 0)
     )
+
+    # -----------------------
+    # Team aggregation
+    # -----------------------
 
     home = df.groupby(["Season","HomeTeam"])["HomePoints"].sum().reset_index()
     home.columns = ["Season","Team","HomePoints"]
@@ -225,32 +237,68 @@ def home_advantage_chart(df):
         team_perf["HomePoints"] - team_perf["AwayPoints"]
     )
 
-    season = alt.selection_point(
-        fields=["Season"],
-        bind=alt.binding_radio(
-            options=["2023-24","2024-25"]
-        )
-    )
+    team_perf = team_perf[team_perf["Season"] == season]
 
-    chart = (
+    # -----------------------
+    # Brush interaction
+    # -----------------------
+
+    brush = alt.selection_interval(encodings=["y"])
+
+    # -----------------------
+    # Top chart
+    # -----------------------
+
+    top_chart = (
         alt.Chart(team_perf)
         .mark_bar()
         .encode(
-            y=alt.Y("Team:N", sort="-x"),
-            x="HomeAdvantage:Q",
+            y=alt.Y("Team:N", sort="-x", title="Team"),
+            x=alt.X(
+                "HomeAdvantage:Q",
+                title="Home Advantage (Home Points − Away Points)"
+            ),
             color=alt.condition(
                 alt.datum.HomeAdvantage > 0,
                 alt.value("steelblue"),
                 alt.value("orange")
             ),
+            opacity=alt.condition(brush, alt.value(1), alt.value(0.3)),
             tooltip=["Team","HomePoints","AwayPoints","HomeAdvantage"]
         )
-        .transform_filter(season)
-        .add_params(season)
+        .add_params(brush)
+        .properties(width=650, height=350)
     )
 
-    return chart.properties(
-        width=650,
-        height=400,
-        title="Home Advantage by Team"
+    # -----------------------
+    # Bottom chart
+    # -----------------------
+
+    melted = team_perf.melt(
+        id_vars=["Team"],
+        value_vars=["HomePoints","AwayPoints"],
+        var_name="Venue",
+        value_name="Points"
     )
+
+    bottom_chart = (
+        alt.Chart(melted)
+        .mark_bar()
+        .encode(
+            x=alt.X("Venue:N", title="Venue"),
+            y=alt.Y("Points:Q", title="Total Points"),
+            column=alt.Column("Team:N", title="Team"),
+            color=alt.Color("Venue:N", legend=None),
+            tooltip=["Team","Venue","Points"]
+        )
+        .transform_filter(brush)
+        .properties(width=120, height=250)
+    )
+
+    # -----------------------
+    # Combine charts
+    # -----------------------
+
+    dashboard = top_chart & bottom_chart
+
+    return dashboard
