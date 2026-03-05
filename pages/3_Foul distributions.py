@@ -41,5 +41,5 @@ season was significantly different from the refereeing
 style of the same referee in the 2023-24 season. The 
 refereeing style of the same referee in the 2024-25 season of the 
 league indicates that she issued many more fouls and yellow cards
-in the 2024-25 season than in the 2023-24 season.
+in the 2024-25 than in 2023-24.
 """)
