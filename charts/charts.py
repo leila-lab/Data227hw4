@@ -1,3 +1,5 @@
+#chart1
+
 import altair as alt
 import pandas as pd
 
@@ -99,32 +101,28 @@ def league_position_bump_chart(df):
 
     return bump_chart
 
+#chart 2
 import altair as alt
 import pandas as pd
-import numpy as np
-
-alt.data_transformers.disable_max_rows()
 
 def team_consistency_chart(df):
 
-    home_long = df[[
-        "Season","Date","HomeTeam",
-        "FTHG","HS","HST","HC"
-    ]].copy()
+    alt.data_transformers.disable_max_rows()
+
+    home_long = df[
+        ["Season","Date","HomeTeam","FTHG","HS","HST","HC"]
+    ].copy()
 
     home_long.columns = [
-        "Season","Date","Team",
-        "Goals","Shots","ShotsOnTarget","Corners"
+        "Season","Date","Team","Goals","Shots","ShotsOnTarget","Corners"
     ]
 
-    away_long = df[[
-        "Season","Date","AwayTeam",
-        "FTAG","AS","AST","AC"
-    ]].copy()
+    away_long = df[
+        ["Season","Date","AwayTeam","FTAG","AS","AST","AC"]
+    ].copy()
 
     away_long.columns = [
-        "Season","Date","Team",
-        "Goals","Shots","ShotsOnTarget","Corners"
+        "Season","Date","Team","Goals","Shots","ShotsOnTarget","Corners"
     ]
 
     long_df = pd.concat([home_long, away_long])
@@ -132,9 +130,7 @@ def team_consistency_chart(df):
     long_df = long_df.sort_values(["Season","Team","Date"])
 
     long_df["Matchweek"] = (
-        long_df
-        .groupby(["Season","Team"])
-        .cumcount() + 1
+        long_df.groupby(["Season","Team"]).cumcount() + 1
     )
 
     metric_df = long_df.melt(
@@ -152,14 +148,16 @@ def team_consistency_chart(df):
 
     team_select = alt.selection_point(
         fields=["Team"],
-        bind=alt.binding_select(options=sorted(metric_df["Team"].unique())),
-        name="Team"
+        bind=alt.binding_select(
+            options=sorted(metric_df["Team"].unique())
+        ),
+        value=sorted(metric_df["Team"].unique())[0]
     )
 
     season_select = alt.selection_point(
         fields=["Season"],
         bind=alt.binding_radio(options=["2023-24","2024-25"]),
-        name="Season"
+        value="2023-24"
     )
 
     metric_select = alt.selection_point(
@@ -167,31 +165,33 @@ def team_consistency_chart(df):
         bind=alt.binding_radio(
             options=["Goals","Shots","ShotsOnTarget","Corners"]
         ),
-        name="Metric"
+        value="Goals"
     )
 
     chart = (
         alt.Chart(metric_df)
         .mark_line(size=3)
         .encode(
-            x="Matchweek:Q",
-            y="RollingValue:Q",
+            x=alt.X("Matchweek:Q", title="Matchweek"),
+            y=alt.Y("RollingValue:Q", title="5 Match Rolling Average"),
             tooltip=["Team","Season","Matchweek","Metric","RollingValue"]
         )
         .transform_filter(team_select)
         .transform_filter(season_select)
         .transform_filter(metric_select)
         .add_params(team_select, season_select, metric_select)
-        .properties(
-            width=750,
-            height=450,
-            title="Attacking Consistency Across Matchweeks"
-        )
+        .properties(width=750, height=450)
     )
 
     return chart
 
+#chart 3
+
+import numpy as np
+
 def home_advantage_dashboard(df):
+
+    alt.data_transformers.disable_max_rows()
 
     df["HomePoints"] = np.where(
         df["FTHG"] > df["FTAG"],3,
@@ -218,10 +218,8 @@ def home_advantage_dashboard(df):
     season_select = alt.selection_point(
         fields=["Season"],
         bind=alt.binding_radio(options=["2023-24","2024-25"]),
-        name="Season"
+        value="2023-24"
     )
-
-    brush = alt.selection_interval(encodings=["y"])
 
     top_chart = (
         alt.Chart(team_perf)
@@ -234,11 +232,11 @@ def home_advantage_dashboard(df):
                 alt.value("steelblue"),
                 alt.value("orange")
             ),
-            opacity=alt.condition(brush, alt.value(1), alt.value(0.3)),
             tooltip=["Team","HomePoints","AwayPoints","HomeAdvantage"]
         )
         .transform_filter(season_select)
-        .add_params(season_select, brush)
+        .add_params(season_select)
+        .properties(width=650,height=350)
     )
 
     melted = team_perf.melt(
@@ -258,7 +256,7 @@ def home_advantage_dashboard(df):
             color="Venue:N"
         )
         .transform_filter(season_select)
-        .transform_filter(brush)
+        .properties(width=120,height=250)
     )
 
     return top_chart & bottom_chart
